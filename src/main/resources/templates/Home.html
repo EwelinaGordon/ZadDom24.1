@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css" integrity="sha384-Smlep5jCw/wG7hdkwQ/Z5nLIefveQRIY9nfy6xoR1uRYBtpZgI6339F5dgvm/e9B" crossorigin="anonymous">
+<head>
+    <meta charset="UTF-8">
+    <title>Library</title>
+</head>
+<body>
+<div>
+</br>
+    <form action="/addbook" method="post" th:object="${book}">
+        Tytuł: <input type="text" th:field="*{title}"/>
+        ISBN: <input type="text" th:field="*{isbn}"/>
+        Data wydania: <input type="date" th:field="*{publishedDate}"/>
+        Kategoria: <input type="text" th:field="*{category}"/>
+        <input type="submit" value="Dodaj!" />
+    </form></div></br></br></br>
+
+
+<table class="table" width="10px">
+    <thead>
+    <tr>
+        <th> Usuń </th>
+        <th> Id</th>
+        <th> Tytuł</th>
+        <th> ISBN</th>
+        <th> Data wydania</th>
+        <th> Kategoria</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="book: ${allBooks}">
+        <td><a  th:href="@{'/usun?id=' + ${book.id}}">usuń pozycję</a></td>
+        <td th:text="${book.id}"></td>
+        <td th:text="${book.title}"></td>
+        <td th:text="${book.isbn}"></td>
+        <td th:text="${book.publishedDate}"></td>
+        <td th:text="${book.category}"></td>
+    </tr>
+    </tbody>
+</table>
+
+</div>
+
+</body>
+</html>
