@@ -1,91 +1,71 @@
 package com.example.demo;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
-import java.sql.*;
-import java.util.ArrayList;
+import javax.persistence.*;
 import java.util.List;
+
 
 @Component
 public class BookDAO {
 
-    private static final String URL = "jdbc:mysql://localhost:3306/library?characterEncoding=utf8&serverTimezone=UTC";
-    private static final String USER = "root";
-    private static final String PASSWORD = "root";
-    private Connection connection;
-
-    public BookDAO() {
-
-        try {
-            Class.forName("com.mysql.jdbc.Driver");
-            connection = DriverManager.getConnection(URL, USER, PASSWORD);
-        } catch (ClassNotFoundException e) {
-            System.out.println("No driver found");
-        } catch (SQLException e) {
-            System.out.println("Could not establish connection");
-        }
-    }
-
+    @PersistenceUnit
+    @Autowired
+    private EntityManagerFactory entityManagerFactory;
 
     public void save(Book book) {
-        final String query = "insert into book(category, isbn, published_date, title) values (?, ?, ?, ?)";
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setString(1, book.getCategory().toString());
-            preparedStatement.setString(2, book.getIsbn());
-            preparedStatement.setDate(3, Date.valueOf(book.getPublishedDate()));
-            preparedStatement.setString(4, book.getTitle());
-            preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            System.out.println("Could not save record");
-        }
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        entityManager.getTransaction().begin();
+        entityManager.persist(book);
+        entityManager.getTransaction().commit();
+        entityManager.close();
     }
 
-    public List<Book> readBooks() {
-        List<Book> resultList = new ArrayList<>();
-        final String query = "select id, category, isbn, published_date, title from book";
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-            ResultSet result = preparedStatement.executeQuery();
-            while (result.next()) {
-                Book book = new Book();
-                book.setId(result.getLong("id"));
-                book.setCategory(Category.valueOf(result.getString("category")));
-                book.setIsbn(result.getString("isbn"));
-                book.setPublishedDate(result.getDate("published_date").toLocalDate());
-                book.setTitle(result.getString("title"));
-                resultList.add(book);
-            }
-        } catch (SQLException e) {
-            System.out.println("Could not find book");
+    public List<Book> readBooks(String sortCode) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        String sortQuery = "";
+        if(!StringUtils.isEmpty(sortCode)){
+            sortQuery = "order by "  +sortCode+ " ASC";
         }
+        TypedQuery<Book> query = entityManager.createQuery("select b from Book b "+sortQuery , Book.class);
+        List<Book> resultList = query.getResultList();
+        entityManager.close();
         return resultList;
     }
 
-    public void update(Book book) {
-        final String query = "update book set isbn = ? where id = ?";
-
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setString(1, book.getIsbn());
-            preparedStatement.setLong(2, book.getId());
-            preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            System.out.println("Could not update item");
-        }
+    public Book readBookByID(long id) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        TypedQuery<Book> query = entityManager.createQuery("select b from Book b where id=:numer", Book.class);
+        query.setParameter("numer", id);
+        List<Book> resultList = query.getResultList();
+        entityManager.close();
+        return resultList.get(0);
     }
 
-    public void delete(int id) {
-        final String query = "delete from book where id = ?";
-
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setInt(1, id);
-            preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            System.out.println("Could not delete item");
-        }
-
+    public void updateBook(Book book){
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        TypedQuery<Book> query = entityManager.createQuery("select b from Book b where id=:numer", Book.class);
+        query.setParameter("numer", book.getId());
+        List<Book> resultList = query.getResultList();
+        Book bookToUpdate = resultList.get(0);
+        entityManager.getTransaction().begin();
+        bookToUpdate.setTitle(book.getTitle());
+        bookToUpdate.setPublishedDate(book.getPublishedDate());
+        bookToUpdate.setIsbn(book.getIsbn());
+        bookToUpdate.setCategory(book.getCategory());
+        entityManager.getTransaction().commit();
+        entityManager.close();
     }
 
+
+    public void delete(long id) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        Book book = entityManager.find(Book.class, id);
+        entityManager.getTransaction().begin();
+        entityManager.remove(book);
+        entityManager.getTransaction().commit();
+        entityManager.close();
+    }
 }

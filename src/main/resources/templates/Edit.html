@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css" integrity="sha384-Smlep5jCw/wG7hdkwQ/Z5nLIefveQRIY9nfy6xoR1uRYBtpZgI6339F5dgvm/e9B" crossorigin="anonymous">
+<head>
+    <meta charset="UTF-8">
+    <title>Library</title>
+</head>
+<body>
+<div>
+</br>
+    <form action="/edytuj" method="post" th:object="${book}">
+        <input type="hidden" th:field="*{id}"/>
+        Tytuł: <input type="text" th:field="*{title}"/>
+        ISBN: <input type="text" th:field="*{isbn}"/>
+        Data wydania: <input type="date" th:field="*{publishedDate}"/>
+        Kategoria: <input type="text" th:field="*{category}"/>
+        <input type="submit" value="Dodaj!" />
+    </form></div></br></br></br>
+
+</div>
+
+</body>
+</html>

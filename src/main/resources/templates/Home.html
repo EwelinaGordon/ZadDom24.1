@@ -16,10 +16,14 @@
         <input type="submit" value="Dodaj!" />
     </form></div></br></br></br>
 
+<a href="sort?sortCode=isbn">Sortuj po ISBN</a> <br />
+<a href="sort?sortCode=title">Sortuj po tytule</a> <br />
+<a href="sort?sortCode=publishedDate">Sortuj po dacie wydania</a>
 
 <table class="table" width="10px">
     <thead>
     <tr>
+        <th> Edytuj </th>
         <th> Usuń </th>
         <th> Id</th>
         <th> Tytuł</th>
@@ -30,6 +34,7 @@
     </thead>
     <tbody>
     <tr th:each="book: ${allBooks}">
+        <td><a  th:href="@{'/edytuj?id=' + ${book.id}}">edytuj pozycję</a></td>
         <td><a  th:href="@{'/usun?id=' + ${book.id}}">usuń pozycję</a></td>
         <td th:text="${book.id}"></td>
         <td th:text="${book.title}"></td>
